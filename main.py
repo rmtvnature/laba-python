@@ -1,7 +1,7 @@
 # Импорт необходимых модулей
-import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
-import time
+import matplotlib.pyplot as plt  # Импорт модуля для визуализации данных
+from matplotlib.patches import Circle  # Импорт класса для создания круговых элементов
+import time  # Импорт модуля для работы со временем
 
 # Класс, представляющий узел дерева
 class TreeNode:
@@ -12,29 +12,29 @@ class TreeNode:
 
 # Функция для вставки нового узла в дерево
 def insert(root, value):
-    if root is None:
-        return TreeNode(value)
+    if root is None:  # Если дерево пустое
+        return TreeNode(value)  # Создаем новый узел
     else:
-        if root.left is None:
-            root.left = insert(root.left, value)
-        elif root.right is None:
-            root.right = insert(root.right, value)
+        if root.left is None:  # Если левый потомок пуст
+            root.left = insert(root.left, value)  # Вставляем новый узел в левое поддерево
+        elif root.right is None:  # Если правый потомок пуст
+            root.right = insert(root.right, value)  # Вставляем новый узел в правое поддерево
         else:
-            # Если оба поддерева заполнены, вставляем в левое
+            # Если оба поддерева заполнены, вставляем новый узел в левое поддерево
             if root.left.left is None or root.left.right is None:
                 root.left = insert(root.left, value)
             else:
-                # Иначе вставляем в правое поддерево
+                # Иначе вставляем новый узел в правое поддерево
                 root.right = insert(root.right, value)
     return root
 
 # Функция для печати дерева в виде текста
 def print_tree(root, level=0, prefix="Root: "):
     if root is not None:
-        print("   " * level + prefix + str(root.value))
+        print("   " * level + prefix + str(root.value))  # Выводим значение узла
         if root.left is not None or root.right is not None:
-            print_tree(root.left, level + 1, "L: ")
-            print_tree(root.right, level + 1, "R: ")
+            print_tree(root.left, level + 1, "L: ")  # Рекурсивно вызываем функцию для левого потомка
+            print_tree(root.right, level + 1, "R: ")  # Рекурсивно вызываем функцию для правого потомка
 
 # Функция для визуализации дерева с помощью Matplotlib
 def draw_tree(ax, node, x, y, spacing, level=1):
@@ -42,7 +42,7 @@ def draw_tree(ax, node, x, y, spacing, level=1):
         # Рисуем круговой узел
         circle = Circle((x, y), 0.3, color='black', fill=False)
         ax.add_patch(circle)
-        ax.text(x, y, str(node.value), ha='center', va='center', fontsize=12)
+        ax.text(x, y, str(node.value), ha='center', va='center', fontsize=12)  # Выводим значение узла
         # Рисуем связь с левым потомком, если он есть
         if node.left is not None:
             x_left = x - spacing / (2 ** level)
@@ -80,41 +80,48 @@ def find_subtrees_with_same_structure(root, subtree_root):
 
 # Точка входа в программу
 if __name__ == "__main__":
-    # Запуск таймера для измерения времени выполнения
-    start_time = time.time()
+    # Список файлов для обработки
+    file_names = ["tree_data1.txt", "tree_data2.txt", "tree_data3.txt"]
 
-    main_tree = None
+    # Обработка каждого файла
+    for i, file_name in enumerate(file_names):
+        # Запуск таймера для измерения времени выполнения
+        start_time = time.time()
 
-    # Чтение данных о дереве из файла и построение главного дерева
-    with open("tree_data.txt", "r") as file:
-        lines = file.readlines()
-        main_tree = TreeNode(int(lines[0].strip()))
-        for value in lines[1:]:
-            value = int(value.strip())
-            main_tree = insert(main_tree, value)
+        main_tree = None
 
-    # Создание графического окна для визуализации дерева
-    fig, ax = plt.subplots(figsize=(8, 6))
-    draw_tree(ax, main_tree, 0, 0, 3)
-    ax.set_aspect(1.0)
-    ax.axis('off')
-    plt.show()
+        # Чтение данных о дереве из файла и построение главного дерева
+        with open(file_name, "r") as file:
+            lines = file.readlines()
+            main_tree = TreeNode(int(lines[0].strip()))
+            for value in lines[1:]:
+                value = int(value.strip())
+                main_tree = insert(main_tree, value)
 
-    # Определение структуры поддерева, которую нужно найти
-    subtree_root = TreeNode(2)
-    subtree_root.left = TreeNode(4)
-    subtree_root.right = TreeNode(5)
+        # Для первого файла выводим поддеревья и рисунок
+        if i == 0:
+            # Создание графического окна для визуализации дерева
+            fig, ax = plt.subplots(figsize=(8, 6))
+            draw_tree(ax, main_tree, 0, 0, 3)
+            ax.set_aspect(1.0)
+            ax.axis('off')
+            plt.show()
 
-    # Поиск всех поддеревьев с такой же структурой
-    found_subtrees = find_subtrees_with_same_structure(main_tree, subtree_root)
+            # Определение структуры поддерева, которую нужно найти
+            subtree_root = TreeNode(2)
+            subtree_root.left = TreeNode(4)
+            subtree_root.right = TreeNode(5)
 
-    # Вывод найденных поддеревьев
-    print("Найденные поддеревья с такой же структорой:")
-    for subtree in found_subtrees:
-        print_tree(subtree)
-        print()
+            # Поиск всех поддеревьев с такой же структурой
+            found_subtrees = find_subtrees_with_same_structure(main_tree, subtree_root)
 
-    # Завершение таймера и вывод времени выполнения
-    end_time = time.time()
-    execution_time = end_time - start_time
-    print("Время выполнения:", execution_time, "секунды")
+            # Вывод найденных поддеревьев
+            print(f"Найденные поддеревья для файла {file_name} с такой же структорой:")
+            for subtree in found_subtrees:
+                print_tree(subtree)
+                print()
+
+        # Завершение таймера и вывод времени выполнения в миллисекундах
+        end_time = time.time()
+        execution_time_ms = (end_time - start_time) * 1000  # Преобразуем секунды в миллисекунды
+        print(f"Время выполнения для файла {file_name}: {execution_time_ms:.2f} миллисекунд")
